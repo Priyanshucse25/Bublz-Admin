@@ -7,12 +7,12 @@ axios.defaults.withCredentials = true;
 axios.defaults.silent = true;
 
 // === HARDCODED AUTH TOKEN (for now) ===
-const AUTH_TOKEN = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc1MzQzMTY1OCwianRpIjoiMjhiMmEzMzItZTBiOS00MDBhLWIzMjUtOTEwYWJhNDJjZmQ2IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjIiLCJuYmYiOjE3NTM0MzE2NTgsImNzcmYiOiI1MzBiYTZjNy0zZGFmLTQ1MDMtOTE3OC04NWY4NzYyMDU3NjAiLCJleHAiOjE3NTM1MTgwNTgsInJvbGUiOiJhZG1pbiJ9.4RHAGkPKr2CQlquHSxd_ARiENJDOH9PJimKUNPoX3BY';
+const AUTH_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc1MzY3OTU2OSwianRpIjoiNDI1NDRlYWEtNzI2Ni00ODE4LTg3YzQtZjQxNzkxY2RmYTlmIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjIiLCJuYmYiOjE3NTM2Nzk1NjksImNzcmYiOiJkN2ZhY2YxYy1mYjY2LTQ0Y2UtYTNmNi1lNmU4MTcyYmUxZjAiLCJleHAiOjE3NTM3NjU5NjksInJvbGUiOiJhZG1pbiJ9.0lDQPzy6bC3fHN2S7g40N2LCkr-JGyh2hv3hJODoKOs';
 
 // === REQUEST INTERCEPTOR ===
 axios.interceptors.request.use(
   config => {
-    config.headers.Authorization = AUTH_TOKEN;
+    config.headers.Authorization = `Bearer ${AUTH_TOKEN}`;
     return config;
   },
   error => Promise.reject(error)

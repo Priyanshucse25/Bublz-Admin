@@ -4,14 +4,14 @@
       <img src="@/assets/bubblz.svg" alt="Logo" class="mx-auto block h-auto w-30" />
     </div>
 
-    <ul class="flex-grow list-none p-0 px-6 pt-4">
+    <ul class="flex-grow list-none p-0 px-4 pt-4">
       <li v-for="item in navItems" :key="item.name">
         <RouterLink
           :to="item.to"
           class="mb-2 flex items-center rounded-lg px-4 py-3 text-base text-gray-600 transition-colors hover:bg-gray-200 hover:text-black"
           :class="{ 'bg-blue-500 font-semibold text-white shadow-sm': isActive(item.to) }"
         >
-          <i :class="item.icon" class="mr-3 text-lg"></i>
+          <i :class="item.icon" class="mr-3 text-sm"></i>
           <span>{{ item.name }}</span>
         </RouterLink>
       </li>
