@@ -20,6 +20,8 @@ export const useUserStore = defineStore("userStore", () => {
   const users = ref([]);
   const isLoadingUsers = ref(false);
   const getUsersError = ref(null);
+  const isUpdatingUser = ref(false);
+  const updateUserError = ref(null);
 
   const sendOtp = async (payload) => {
     isSendingOtp.value = true;
@@ -85,6 +87,31 @@ export const useUserStore = defineStore("userStore", () => {
     }
   };
 
+  // ✅ Updated PUT: Update user profile using `users/:id`
+  const updateUserProfile = async (id, payload) => {
+    isUpdatingUser.value = true;
+    updateUserError.value = null;
+    try {
+      const response = await makeRequest(`users/${id}`, "PUT", payload);
+      console.log("✅ User profile updated:", response);
+    } catch (error) {
+      console.error("❌ Error updating user profile:", error);
+      updateUserError.value = error.message || "Failed to update user";
+    } finally {
+      isUpdatingUser.value = false;
+    }
+  };
+
+  // ✅ Updated DELETE: Delete user profile using `users/:id`
+  const deleteUserProfile = async (id) => {
+    try {
+      const response = await makeRequest(`users/${id}`, "DELETE");
+      console.log("✅ User profile deleted:", response);
+    } catch (error) {
+      console.error("❌ Error deleting user profile:", error);
+    }
+  };
+
   return {
     // States
     isSendingOtp,
@@ -101,11 +128,15 @@ export const useUserStore = defineStore("userStore", () => {
     users,
     isLoadingUsers,
     getUsersError,
+    isUpdatingUser,
+    updateUserError,
 
     // Actions
     sendOtp,
     verifyOtp,
     signup,
     getUsers,
+    updateUserProfile,
+    deleteUserProfile,
   };
 });

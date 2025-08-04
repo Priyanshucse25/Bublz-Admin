@@ -45,15 +45,15 @@
             <tr v-else v-for="employee in employees" :key="employee.id" class="hover:bg-gray-50">
               <td class="whitespace-nowrap px-6 py-4 font-medium text-gray-900">{{ employee.name }}</td>
               <td class="whitespace-nowrap px-6 py-4 font-mono text-gray-700">EMP-{{ employee.user_id }}</td>
-              <td class="whitespace-nowrap px-6 py-4 font-mono text-gray-700">********</td>
+              <td class="whitespace-nowrap px-6 py-4 font-mono text-gray-700">{{ employee.plain_password }}</td>
               <td class="whitespace-nowrap px-6 py-4 text-gray-700">{{ employee.phone }}</td>
               <td class="whitespace-nowrap px-6 py-4 text-gray-700">{{ employee.email }}</td>
               <td class="whitespace-nowrap px-6 py-4 text-gray-700">{{ employee.address }}</td>
               <td class="whitespace-nowrap px-6 py-4 text-gray-700">{{ employee.specialization }}</td>
               <td class="whitespace-nowrap px-6 py-4 text-gray-700">{{ employee.service_area }}</td>
               <td class="whitespace-nowrap px-6 py-4 text-center text-gray-700">{{ employee.experience_years }} yrs</td>
-              <td class="whitespace-nowrap px-6 py-4 text-center text-gray-700">
-                <span class="font-semibold text-yellow-500">★</span> {{ employee.rating }}
+              <td class="whitespace-nowrap px-6 py-4 text-center text-gray-700">{{ employee.avg_rating }}
+                <span class="font-semibold text-yellow-500">★</span> 
               </td>
               <td class="whitespace-nowrap px-6 py-4 text-center">
                 <button
@@ -97,38 +97,36 @@
               <p v-if="submitError || updateError" class="text-sm text-red-600">{{ submitError || updateError }}</p>
               <div>
                 <label for="employeeName" class="block text-sm font-medium text-gray-700">Name</label>
-                <input type="text" id="employeeName" v-model="currentEmployee.name" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" />
+                <input type="text" id="employeeName" v-model="currentEmployee.name" required class="mt-1 p-1 px-2  block w-full  border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" />
               </div>
               <div>
                 <label for="employeePhone" class="block text-sm font-medium text-gray-700">Phone</label>
-                <input type="text" id="employeePhone" v-model="currentEmployee.phone" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" />
+                <input type="text" id="employeePhone" v-model="currentEmployee.phone" required class="mt-1 p-1 px-2  block w-full r border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" />
               </div>
               <div>
                 <label for="employeeAddress" class="block text-sm font-medium text-gray-700">Address</label>
-                <input type="text" id="employeeAddress" v-model="currentEmployee.address" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" />
+                <input type="text" id="employeeAddress" v-model="currentEmployee.address" required class="mt-1 p-1 px-2  block w-full  border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" />
               </div>
               <div>
                 <label for="employeeSpecialization" class="block text-sm font-medium text-gray-700">Specialization</label>
-                <input type="text" id="employeeSpecialization" v-model="currentEmployee.specialization" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" />
+                <input type="text" id="employeeSpecialization" v-model="currentEmployee.specialization" required class="mt-1 p-1 px-2  block w-full  border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" />
               </div>
               <div>
                 <label for="employeeServiceArea" class="block text-sm font-medium text-gray-700">Service Area</label>
-                <input type="text" id="employeeServiceArea" v-model="currentEmployee.service_area" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" />
+                <input type="text" id="employeeServiceArea" v-model="currentEmployee.service_area" required class="mt-1 p-1 px-2  block w-full  border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" />
               </div>
               <div class="grid grid-cols-2 gap-4">
                   <div>
                     <label for="employeeExperience" class="block text-sm font-medium text-gray-700">Experience (Years)</label>
-                    <input type="number" id="employeeExperience" v-model.number="currentEmployee.experience_years" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" />
+                    <input type="number" id="employeeExperience" v-model.number="currentEmployee.experience_years" required class="mt-1 p-1 px-2  block w-full 
+                      border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" />
                   </div>
-                  <div>
-                    <label for="employeeRating" class="block text-sm font-medium text-gray-700">Rating (1-5)</label>
-                    <input type="number" id="employeeRating" v-model.number="currentEmployee.rating" required min="0" max="5" step="0.1" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" />
                   </div>
-              </div>
               <div>
                   <label for="employeeEmail" class="block text-sm font-medium text-gray-700">Email</label>
                   <div class="mt-1 flex items-center space-x-2">
-                      <input type="email" id="employeeEmail" v-model="currentEmployee.email" :disabled="isEditing || emailSent" required class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm disabled:bg-gray-100" />
+                      <input type="email" id="employeeEmail" v-model="currentEmployee.email" :disabled="isEditing || emailSent" required class="block w-full p-1 px-2
+                        border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm disabled:bg-gray-100" />
                       <button v-if="!isEditing" type="button" @click="handleSendOtp" :disabled="emailSent" class="rounded-md bg-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-sm disabled:cursor-not-allowed disabled:opacity-50">Verify</button>
                   </div>
               </div>
@@ -182,7 +180,6 @@ import { useEmployeeStore } from '@/stores/employeeStore';
 import { storeToRefs } from 'pinia';
 
 const employeeStore = useEmployeeStore();
-// ✅ 1. Get all state and actions from the store
 const { 
     employees, 
     isLoading, 
@@ -210,7 +207,6 @@ const defaultEmployee = () => ({
   specialization: '',
   service_area: '',
   experience_years: 0,
-  rating: 0,
   is_available: true,
 });
 
@@ -296,15 +292,25 @@ const handleModalVerifyOtp = async () => {
     }
 };
 
-// ✅ 2. Update handleSubmit to call updateEmployee when editing
 const handleSubmit = async () => {
   if (isEditing.value) {
-    await updateEmployee(currentEmployee.value.id, { ...currentEmployee.value });
+    // Create a copy of the employee data to be sent as a JSON object.
+    const payload = { ...currentEmployee.value };
+    
+    // ✅ FIX: Delete properties that should not be sent in the PUT request.
+    delete payload.id;
+    delete payload.user_id;
+    delete payload.avg_rating;
+    delete payload.plain_password;
+    delete payload.role;
+
+    await updateEmployee(currentEmployee.value.id, payload);
+    
     if (!updateError.value) {
       closeModal();
-      // The store's update action already refreshes the list
     }
   } else {
+    // This part for adding a new employee remains unchanged.
     if (!otpVerified.value) {
         alert('Please verify the email with OTP before submitting.');
         return;
@@ -313,22 +319,29 @@ const handleSubmit = async () => {
     await signupEmployee({ ...currentEmployee.value });
 
     if (!submitError.value) {
-        await getEmployees(); // Refresh the list from the server
+        await getEmployees(); 
         closeModal();
     }
   }
 };
 
-// ✅ 3. Update deleteEmployee and toggleStatus to use store actions
 const handleDeleteEmployee = async (id) => {
     if (confirm('Are you sure you want to delete this employee?')) {
         await deleteEmployee(id);
-        // The store's delete action automatically refreshes the list
     }
 };
 
 const toggleStatus = async (employee) => {
+    // Create a copy of the employee data to modify.
     const updatedEmployee = { ...employee, is_available: !employee.is_available };
+    
+    // ✅ FIX: Delete properties that should not be sent in the PUT request.
+    delete updatedEmployee.id;
+    delete updatedEmployee.user_id;
+    delete updatedEmployee.avg_rating;
+    delete updatedEmployee.plain_password;
+    delete updatedEmployee.role;
+
     await updateEmployee(employee.id, updatedEmployee);
 };
 </script>

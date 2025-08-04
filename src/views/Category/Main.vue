@@ -31,12 +31,12 @@
                 <td colspan="3" class="px-6 py-12 text-center text-red-500">Error: {{ fetchError }}</td>
             </tr>
             <tr v-else-if="categories.length === 0">
-              <td colspan="3" class="px-6 py-12 text-center text-gray-500">No categories have been added yet.</td>
+                <td colspan="3" class="px-6 py-12 text-center text-gray-500">No categories have been added yet.</td>
             </tr>
             <tr v-else v-for="category in categories" :key="category.id" class="hover:bg-gray-50">
               <td class="whitespace-nowrap px-6 py-4">
                 <div class="flex items-center">
-                  <img :src="category.image_url" :alt="category.name" class="h-10 w-10 flex-shrink-0 rounded-full object-cover">
+                  <img :src="buildUrl(category.image_url)" :alt="category.name" class="h-10 w-10 flex-shrink-0 rounded-full object-cover">
                   <div class="ml-4 font-medium text-lg text-gray-900">{{ category.name }}</div>
                 </div>
               </td>
@@ -86,7 +86,7 @@
               <label class="block text-sm font-medium text-gray-700">Category Image</label>
               <input type="file" @change="handleImageUpload" accept="image/*" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:rounded-full file:border-0 file:bg-blue-50 file:py-2 file:px-4 file:text-sm file:font-semibold file:text-blue-700 hover:file:bg-blue-100" />
               <div v-if="currentCategory.imagePreview" class="mt-4">
-                <img :src="currentCategory.imagePreview" alt="Image Preview" class="h-20 w-20 rounded-full object-cover" />
+                <img :src="buildUrl(currentCategory.imagePreview)" alt="Image Preview" class="h-20 w-20 rounded-full object-cover" />
               </div>
             </div>
             <div>
@@ -119,7 +119,7 @@
 
     <Transition name="modal-fade">
         <div v-if="showViewModal" @click="showViewModal = false" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm">
-            <img :src="viewingImage" alt="Category Image" class="max-h-[80vh] max-w-[80vw] rounded-lg shadow-xl">
+            <img :src="buildUrl(viewingImage)" alt="Category Image" class="max-h-[80vh] max-w-[80vw] rounded-lg shadow-xl">
         </div>
     </Transition>
   </div>
@@ -129,9 +129,9 @@
 import { ref, onMounted } from 'vue';
 import { useCategoryStore } from '@/stores/CategoryStore';
 import { storeToRefs } from 'pinia';
+import { buildUrl } from '@/utils/buildUrl'
 
 const categoryStore = useCategoryStore();
-// ✅ 1. Destructure all state and actions from the store
 const { 
     categories,
     isLoading,
@@ -201,7 +201,6 @@ const handleImageUpload = (event) => {
   }
 };
 
-// ✅ 2. Update handleSubmit to call updateCategory when editing
 const handleSubmit = async () => {
   if (!currentCategory.value.name) {
     alert("Please enter a category name.");
@@ -217,13 +216,12 @@ const handleSubmit = async () => {
   }
 
   if (isEditing.value) {
-    // Update existing category
     await updateCategory(currentCategory.value.id, formData);
     if (!updateError.value) {
-        closeModal();
+       await fetchCategories();
+       closeModal();
     }
   } else {
-    // Create new category
     if (!currentCategory.value.imageFile) {
         alert("Please upload an image for the new category.");
         return;
@@ -241,26 +239,29 @@ const viewImage = (imageUrl) => {
   showViewModal.value = true;
 };
 
-// ✅ 3. Update deleteCategory and toggleStatus to use store actions
 const handleDeleteCategory = async (id) => {
   if (confirm('Are you sure you want to delete this category?')) {
     await deleteCategory(id);
-    // The store action will refetch the list automatically
   }
 };
 
 const handleToggleStatus = async (category) => {
-    const newStatus = category.status === 'active' ? 'active' : 'inactive';
-    // We can use the update action to toggle status.
-    // NOTE: The API must be able to handle updates without an image file.
-    const payload = new FormData();
-    payload.append('name', category.name);
-    payload.append('status', newStatus);
+  const newStatus = category.status === 'active' ? 'inactive' : 'active';
+  
+  const payload = new FormData();
+  payload.append('name', category.name);
+  payload.append('status', newStatus);
 
-    await updateCategory(category.id, payload);
+  await updateCategory(category.id, payload);
+
+  if (!updateError.value) {
+    const index = categories.value.findIndex(c => c.id === category.id);
+    if (index !== -1) {
+      categories.value[index].status = newStatus;
+    }
+  }
 };
 </script>
-
 
 <style scoped>
 /* Smooth transition for the modals */

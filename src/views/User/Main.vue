@@ -7,12 +7,12 @@
           <p class="text-sm text-gray-500">Add, edit, and view user details.</p>
         </div>
         <div class="flex items-center space-x-4">
-            <button
-              @click="openAddModal"
-              class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
-            >
-              Add User
-            </button>
+          <button
+            @click="openAddModal"
+            class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
+          >
+            Add User
+          </button>
         </div>
       </div>
 
@@ -30,10 +30,10 @@
           </thead>
           <tbody class="divide-y divide-gray-200">
             <tr v-if="isLoadingUsers">
-                <td colspan="6" class="px-6 py-12 text-center text-gray-500">Loading users...</td>
+              <td colspan="6" class="px-6 py-12 text-center text-gray-500">Loading users...</td>
             </tr>
             <tr v-else-if="getUsersError">
-                <td colspan="6" class="px-6 py-12 text-center text-red-500">Error fetching users: {{ getUsersError }}</td>
+              <td colspan="6" class="px-6 py-12 text-center text-red-500">Error fetching users: {{ getUsersError }}</td>
             </tr>
             <tr v-else-if="users.length === 0">
               <td colspan="6" class="px-6 py-12 text-center text-gray-500">No users have been added yet.</td>
@@ -82,7 +82,7 @@
           </div>
           <form @submit.prevent="handleSubmit" class="h-[80vh] overflow-y-auto p-6">
             <div class="space-y-4">
-                <p v-if="signupError" class="text-sm text-red-600">{{ signupError }}</p>
+                <p v-if="signupError || updateUserError" class="text-sm text-red-600">{{ signupError || updateUserError }}</p>
                 <div>
                   <label for="userName" class="block text-sm font-medium text-gray-700">Name</label>
                   <input type="text" id="userName" v-model="currentUser.name" required class="mt-1 block w-full h-8 px-2 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" />
@@ -121,7 +121,7 @@
                   <p v-if="verifyOtpError" class="mt-2 text-sm text-red-600">{{ verifyOtpError }}</p>
                   <div class="flex justify-end">
                       <button type="button" @click="handleModalVerifyOtp" :disabled="isVerifyingOtp" class="rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm disabled:cursor-not-allowed disabled:opacity-50">
-                        {{ isVerifyingOtp ? 'Verifying...' : 'Verify OTP' }}
+                          {{ isVerifyingOtp ? 'Verifying...' : 'Verify OTP' }}
                       </button>
                   </div>
                 </div>
@@ -132,8 +132,8 @@
                     </button>
                 </div>
                 <div class="pt-4 text-right">
-                    <button type="submit" :disabled="isSigningUp || (!isEditing && !otpVerified)" class="rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50">
-                        {{ isSigningUp ? 'Submitting...' : (isEditing ? 'Update User' : 'Submit User') }}
+                    <button type="submit" :disabled="isSigningUp || isUpdatingUser || (!isEditing && !otpVerified)" class="rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50">
+                        {{ isSigningUp || isUpdatingUser ? 'Submitting...' : (isEditing ? 'Update User' : 'Submit User') }}
                     </button>
                 </div>
             </div>
@@ -151,59 +151,71 @@ import { storeToRefs } from 'pinia';
 
 const userStore = useUserStore();
 
-// ✅ Destructure all necessary state and actions
 const {
-    users, // Use users from the store
-    isLoadingUsers,
-    getUsersError,
-    isSendingOtp,
-    isVerifyingOtp,
-    sendOtpError,
-    verifyOtpError,
-    isSigningUp,
-    signupError,
+  users,
+  isLoadingUsers,
+  getUsersError,
+  isSendingOtp,
+  isVerifyingOtp,
+  sendOtpError,
+  verifyOtpError,
+  isSigningUp,
+  signupError,
+  isUpdatingUser,
+  updateUserError
 } = storeToRefs(userStore);
-const { sendOtp, verifyOtp, signup, getUsers } = userStore;
 
-const defaultUser = () => ({
+const {
+  sendOtp,
+  verifyOtp,
+  signup,
+  getUsers,
+  updateUserProfile,
+  deleteUserProfile
+} = userStore;
+
+const showModal = ref(false);
+const isEditing = ref(false);
+const currentUser = ref({
   id: null,
   name: '',
   phone: '',
   email: '',
   address: '',
-  status: 'active',
+  status: 'active'
 });
-
-const showModal = ref(false);
-const isEditing = ref(false);
-const currentUser = ref(defaultUser());
 
 const emailSent = ref(false);
 const otpVerified = ref(false);
 const otp = ref(['', '', '', '', '', '']);
 const otpInputs = ref([]);
 
-watch(() => currentUser.value.email, (newEmail, oldEmail) => {
-    if (!isEditing.value && newEmail !== oldEmail) {
-        emailSent.value = false;
-        otpVerified.value = false;
-        otp.value = ['', '', '', '', '', ''];
-    }
+watch(() => currentUser.value.email, () => {
+  if (!isEditing.value) {
+    emailSent.value = false;
+    otpVerified.value = false;
+    otp.value = ['', '', '', '', '', ''];
+  }
 });
 
-// ✅ Fetch users when the component is mounted
 onMounted(() => {
   getUsers();
 });
 
-// --- ADD/EDIT MODAL LOGIC ---
 const closeModal = () => {
   showModal.value = false;
 };
 
 const openAddModal = () => {
   isEditing.value = false;
-  currentUser.value = defaultUser();
+  currentUser.value = {
+    id: null,
+    name: '',
+    phone: '',
+    email: '',
+    address: '',
+    status: 'active'
+  };
   emailSent.value = false;
   otpVerified.value = false;
   otp.value = ['', '', '', '', '', ''];
@@ -232,68 +244,91 @@ const handleSendOtp = async () => {
 };
 
 const handleOtpKeydown = (event, index) => {
-    const input = event.target;
-    if (event.key >= 0 && event.key <= 9) {
-        input.value = '';
-        setTimeout(() => {
-            if (index < 5) otpInputs.value[index + 1].focus();
-        }, 0);
-    }
-    else if (event.key === 'Backspace' && input.value === '') {
-        if (index > 0) otpInputs.value[index - 1].focus();
-    }
+  const input = event.target;
+  if (event.key >= 0 && event.key <= 9) {
+    input.value = '';
+    setTimeout(() => {
+      if (index < 5) otpInputs.value[index + 1].focus();
+    }, 0);
+  } else if (event.key === 'Backspace' && input.value === '') {
+    if (index > 0) otpInputs.value[index - 1].focus();
+  }
 };
 
 const handleModalVerifyOtp = async () => {
-    const fullOtp = otp.value.join('');
-    if (fullOtp.length < 6) {
-        alert('Please enter the full 6-digit OTP.');
-        return;
-    }
-    await verifyOtp({
-        email: currentUser.value.email,
-        otp: fullOtp,
-    });
-    if (!verifyOtpError.value) {
-        otpVerified.value = true;
-        alert(`Email ${currentUser.value.email} has been verified!`);
-    }
+  const fullOtp = otp.value.join('');
+  if (fullOtp.length < 6) {
+    alert('Please enter the full 6-digit OTP.');
+    return;
+  }
+  await verifyOtp({ email: currentUser.value.email, otp: fullOtp });
+  if (!verifyOtpError.value) {
+    otpVerified.value = true;
+    alert(`Email ${currentUser.value.email} has been verified!`);
+  }
 };
 
 const handleSubmit = async () => {
   if (isEditing.value) {
-    // NOTE: An 'updateUser' action in the store would be needed for a full backend implementation
-    const index = users.value.findIndex(u => u.id === currentUser.value.id);
-    if (index !== -1) users.value[index] = { ...currentUser.value };
-    closeModal();
+    try {
+      const formData = new FormData();
+      for (const key in currentUser.value) {
+        if (Object.prototype.hasOwnProperty.call(currentUser.value, key) && key !== 'id') {
+          formData.append(key, currentUser.value[key]);
+        }
+      }
+      
+      await updateUserProfile(currentUser.value.id, formData);
+      
+      await getUsers(); 
+      closeModal();
+    } catch (error) {
+      console.error("❌ Failed to update user:", error);
+    }
   } else {
     if (!otpVerified.value) {
-        alert('Please verify your email address before submitting.');
-        return;
+      alert('Please verify your email address before submitting.');
+      return;
     }
-    await signup({ ...currentUser.value });
-    if (!signupError.value) {
-        // ✅ Refresh the user list from the server after adding a new user
-        await getUsers();
-        closeModal();
+    try {
+      await signup({ ...currentUser.value });
+      await getUsers();
+      closeModal();
+    } catch (error) {
+      console.error("❌ Failed to sign up user:", error);
     }
   }
 };
 
-// --- TABLE ACTIONS ---
-const deleteUser = (id) => {
-  // NOTE: A 'deleteUser' action in the store would be needed for a full backend implementation
+const deleteUser = async (id) => {
   if (confirm('Are you sure you want to delete this user?')) {
-    users.value = users.value.filter(u => u.id !== id);
+    try {
+      await deleteUserProfile(id);
+      await getUsers();
+    } catch (error) {
+      alert(`❌ Error: ${error.message}`);
+    }
   }
 };
 
-const toggleStatus = (user) => {
-    // NOTE: An 'updateUserStatus' action in the store would be needed for a full backend implementation
-    const index = users.value.findIndex(u => u.id === user.id);
-    if (index !== -1) {
-        users.value[index].status = users.value[index].status === 'active' ? 'inactive' : 'active';
+const toggleStatus = async (user) => {
+  const updatedUser = { ...user, status: user.status === 'active' ? 'inactive' : 'active' };
+  try {
+    // ✅ FIX: Create a FormData object for the status toggle update.
+    const formData = new FormData();
+    for (const key in updatedUser) {
+      if (Object.prototype.hasOwnProperty.call(updatedUser, key) && key !== 'id') {
+        formData.append(key, updatedUser[key]);
+      }
     }
+    
+    // Pass the FormData object to the update function.
+    await updateUserProfile(updatedUser.id, formData);
+    await getUsers();
+    
+  } catch (error) {
+    alert(`❌ Error updating status: ${error.message}`);
+  }
 };
 </script>
 

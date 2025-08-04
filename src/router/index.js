@@ -8,10 +8,18 @@ import UserMain from '@/views/User/Main.vue'
 import BookingMain from '@/views/Booking/Main.vue'
 import EmployeesMain from '@/views/Employees/Main.vue'
 import FaqMain from '@/views/FAQ/Main.vue'
+import Login from '@/components/Login.vue'
+import Review from '@/views/Review/review.vue'
+import Transaction from '@/views/Transaction/transaction.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
+     {
+        path: '/login',
+        name:'login',
+        component:Login
+      },
     {
       path: '/',
       name: 'home',
@@ -52,6 +60,16 @@ const router = createRouter({
         name:'FAQ',
         component: FaqMain,
       },
+       {
+        path: '/review',
+        name:'review',
+        component: Review,
+      },
+       {
+        path: '/transaction',
+        name:'transaction',
+        component: Transaction,
+      }
     ]
     },
  

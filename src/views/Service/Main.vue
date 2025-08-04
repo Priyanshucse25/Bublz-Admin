@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gray-50 p-4 sm:p-0 lg:p-0">
+  <div class="min-h-screen bg-gray-50 p-0 sm:p-0 lg:p-0">
     <div class="mx-auto max-w-7xl">
       <div class=" sticky top-0 z-10 flex items-center justify-between rounded-t-lg border-b border-gray-200 bg-white px-6 py-4">
         <div>
@@ -39,12 +39,13 @@
                 <td colspan="11" class="px-6 py-12 text-center text-red-500">Error: {{ fetchError }}</td>
             </tr>
             <tr v-else-if="services.length === 0">
-              <td colspan="11" class="px-6 py-12 text-center text-gray-500">No services have been added yet.</td>
+                <td colspan="11" class="px-6 py-12 text-center text-gray-500">No services have been added yet.</td>
             </tr>
             <tr v-else v-for="service in services" :key="service.id" class="hover:bg-gray-50">
               <td class="whitespace-nowrap px-6 py-4">
                 <div class="flex items-center">
-                  <img :src="service.image_url" :alt="service.name" class="h-10 w-10 flex-shrink-0 rounded-full object-cover">
+                  <!-- {{ service.image_filename }} -->
+                  <img :src="buildUrl(service.image_filename)" :alt="service.name" class="h-10 w-10 flex-shrink-0 rounded-full object-cover">
                   <div class="ml-4 font-medium text-gray-900">{{ service.name }}</div>
                 </div>
               </td>
@@ -61,6 +62,7 @@
               <td class="px-6 py-4">
                 <div class="flex flex-wrap gap-2">
                   <span
+                    v-if="service.tag"
                     :style="{ backgroundColor: service.color }"
                     class="rounded-full px-2 py-1 text-xs font-semibold text-white"
                   >
@@ -115,13 +117,13 @@
               <div>
                 <label class="block text-sm font-medium text-gray-700">Service Image</label>
                 <input type="file" @change="handleImageUpload" accept="image/*" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:rounded-full file:border-0 file:bg-blue-50 file:py-2 file:px-4 file:text-sm file:font-semibold file:text-blue-700 hover:file:bg-blue-100" />
-                <img v-if="newService.imagePreview" :src="newService.imagePreview" alt="Preview" class="mt-4 h-24 w-24 rounded-lg object-cover" />
+                <img v-if="newService.imagePreview" :src="buildUrl(newService.imagePreview)" alt="Preview" class="mt-4 h-24 w-24 rounded-lg object-cover" />
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700">Name</label>
                 <input type="text" v-model="newService.name" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm" />
               </div>
-              
+
               <div>
                 <label class="block text-sm font-medium text-gray-700">Category</label>
                 <select v-model="newService.category_id" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
@@ -131,27 +133,28 @@
                     </option>
                 </select>
               </div>
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Tag</label>
+                    <input type="text" v-model="newService.tag" placeholder="e.g., Popular" class="block w-full rounded-md border-gray-300 shadow-sm sm:text-sm" />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Tag Color</label>
+                    <input type="color" v-model="newService.color" class="h-10 w-full cursor-pointer rounded-md border-gray-300" />
+                </div>
+              </div>
 
-              <div>
-                <label class="block text-sm font-medium text-gray-700">Tag</label>
-                 <input type="text" v-model="newService.tag" placeholder="Tag text" class="block w-full rounded-md border-gray-300 shadow-sm sm:text-sm" />
-              </div>
-               <div>
-                <label class="block text-sm font-medium text-gray-700">Color</label>
-                 <input type="color" v-model="newService.color" class="h-10 w-full cursor-pointer rounded-md border-gray-300" />
-              </div>
-              
               <div>
                 <label class="block text-sm font-medium text-gray-700">Description</label>
                 <textarea v-model="newService.description" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm"></textarea>
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700">Advantages</label>
-                 <input type="text" v-model="newService.advantages" class="block w-full rounded-md border-gray-300 shadow-sm sm:text-sm" />
+                 <textarea v-model="newService.advantages" placeholder="List advantages, separated by commas" rows="2" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm"></textarea>
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700">Disadvantages</label>
-                 <input type="text" v-model="newService.disadvantages" class="block w-full rounded-md border-gray-300 shadow-sm sm:text-sm" />
+                 <textarea v-model="newService.disadvantages" placeholder="List disadvantages, separated by commas" rows="2" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm"></textarea>
               </div>
               <div class="grid grid-cols-2 gap-4">
                 <div>
@@ -164,13 +167,13 @@
                 </div>
               </div>
                <div>
-                  <label class="block text-sm font-medium text-gray-700">Service Charge (%)</label>
-                  <div class="relative mt-1">
-                      <input type="number" v-model.number="newService.service_charge" required class="block w-full rounded-md border-gray-300 py-2 pl-3 pr-8 shadow-sm sm:text-sm" />
-                      <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                          <span class="text-gray-500 sm:text-sm">%</span>
-                      </div>
-                  </div>
+                    <label class="block text-sm font-medium text-gray-700">Service Charge (%)</label>
+                    <div class="relative mt-1">
+                        <input type="number" v-model.number="newService.service_charge" required class="block w-full rounded-md border-gray-300 py-2 pl-3 pr-8 shadow-sm sm:text-sm" />
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                            <span class="text-gray-500 sm:text-sm">%</span>
+                        </div>
+                    </div>
                 </div>
               <div class="flex items-center justify-between">
                 <label class="block text-sm font-medium text-gray-700">Status</label>
@@ -205,11 +208,11 @@ import { ref, onMounted } from 'vue';
 import { useServiceStore } from '@/stores/serviceStore';
 import { useCategoryStore } from '@/stores/categoryStore';
 import { storeToRefs } from 'pinia';
+import { buildUrl } from '@/utils/buildUrl'
 
 // Service Store
 const serviceStore = useServiceStore();
 const { services, isLoading, fetchError, isSubmitting, submitError } = storeToRefs(serviceStore);
-// ✅ 1. Destructure all needed actions
 const { createService, getServices, updateService, deleteService } = serviceStore;
 
 // Category Store
@@ -228,6 +231,7 @@ const defaultService = () => ({
   color: '#3B82F6',
   image: null,
   imagePreview: null,
+  image_url: null,
   price: 0,
   offer_price: 0,
   service_charge: 0,
@@ -257,7 +261,9 @@ const openAddModal = () => {
 
 const openEditModal = (service) => {
   isEditing.value = true;
+  // Use a deep copy to avoid mutating the original object in the list
   newService.value = JSON.parse(JSON.stringify(service));
+  // Ensure the preview is set from the existing image URL
   newService.value.imagePreview = service.image_url;
   submitError.value = null;
   showModal.value = true;
@@ -279,39 +285,62 @@ const handleImageUpload = (event) => {
   }
 };
 
-// ✅ 2. Update handleSubmit to call updateService when editing
 const handleSubmit = async () => {
   if (isEditing.value) {
+    // --- FIX 1: HANDLE EDIT ---
     await updateService(newService.value.id, { ...newService.value });
-     if (!submitError.value) {
-      await getServices(); // Refresh the list from the server
+    if (!submitError.value) {
+      // Find the service in the local array and update it directly.
+      // This is more reliable and efficient than re-fetching the whole list.
+      const index = services.value.findIndex(s => s.id === newService.value.id);
+      if (index !== -1) {
+        // Update the image_url to the preview so the UI updates if the image changed
+        newService.value.image_url = newService.value.imagePreview;
+        services.value[index] = { ...newService.value };
+      }
       closeModal();
     }
   } else {
+    // --- HANDLE CREATE (Your existing logic is correct here) ---
     await createService({ ...newService.value });
     if (!submitError.value) {
-      await getServices(); // Refresh the list from the server
+      await getServices(); // Refresh to get the newly created service with its ID
       closeModal();
     }
   }
 };
 
-// ✅ 3. Update deleteService to use the store action
 const handleDeleteService = async (id) => {
   if (confirm('Are you sure you want to delete this service?')) {
     await deleteService(id);
-    // The list will automatically refresh because getServices() is called inside deleteService in the store
+    if (!submitError.value) {
+      // --- FIX 2: HANDLE DELETE ---
+      // For efficiency, remove the item from the local array instead of re-fetching.
+      const index = services.value.findIndex(s => s.id === id);
+      if (index !== -1) {
+        services.value.splice(index, 1);
+      }
+    }
   }
 };
 
-// This action is still local as there's no specific store action for it
-const toggleStatus = (service) => {
-    // NOTE: An 'updateServiceStatus' action would be needed in the store for a full backend implementation
+const toggleStatus = async (service) => {
+  // --- FIX 3: INTEGRATE TOGGLE STATUS WITH PUT REQUEST ---
+  const updatedService = { ...service, status: service.status === 'active' ? 'inactive' : 'active' };
+
+  try {
+    // Use the existing updateService action for the PUT request
+    await updateService(updatedService.id, { status: updatedService.status });
+
+    // If the API call is successful, update the status in the local array for instant UI feedback.
     const index = services.value.findIndex(s => s.id === service.id);
     if (index !== -1) {
-        services.value[index].status = services.value[index].status === 'active' ? 'inactive' : 'active';
-        console.log(`Locally toggling status for service ID: ${service.id}. Implement backend update.`);
+        services.value[index].status = updatedService.status;
     }
+  } catch (error) {
+      console.error("Failed to update status:", error);
+      alert('There was an error updating the status.');
+  }
 };
 </script>
 

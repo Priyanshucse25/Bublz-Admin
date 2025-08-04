@@ -1,18 +1,21 @@
+
+
+
 import axios from "axios";
 
 // === BASE URL CONFIGURATION ===
-const BASE_URL = 'https://jxtqdwlv-5000.inc1.devtunnels.ms'; // Replace with your backend URL
+const BASE_URL = 'https://z48fp069-5000.inc1.devtunnels.ms'; // Replace with your backend URL
 axios.defaults.baseURL = BASE_URL;
 axios.defaults.withCredentials = true;
 axios.defaults.silent = true;
 
-// === HARDCODED AUTH TOKEN (for now) ===
-const AUTH_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc1MzY3OTU2OSwianRpIjoiNDI1NDRlYWEtNzI2Ni00ODE4LTg3YzQtZjQxNzkxY2RmYTlmIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjIiLCJuYmYiOjE3NTM2Nzk1NjksImNzcmYiOiJkN2ZhY2YxYy1mYjY2LTQ0Y2UtYTNmNi1lNmU4MTcyYmUxZjAiLCJleHAiOjE3NTM3NjU5NjksInJvbGUiOiJhZG1pbiJ9.0lDQPzy6bC3fHN2S7g40N2LCkr-JGyh2hv3hJODoKOs';
-
 // === REQUEST INTERCEPTOR ===
 axios.interceptors.request.use(
   config => {
-    config.headers.Authorization = `Bearer ${AUTH_TOKEN}`;
+    const token = localStorage.getItem('access_token'); 
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
     return config;
   },
   error => Promise.reject(error)

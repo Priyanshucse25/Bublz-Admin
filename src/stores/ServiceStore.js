@@ -66,7 +66,7 @@ export const useServiceStore = defineStore("serviceStore", () => {
         color: service.color,
         category_id: service.category_id,
         service_charge: service.service_charge,
-        image_url: service.image_url,
+        image_filename: service.image_filename,
         created_at: service.created_at,
         updated_at: service.updated_at,
       }));
