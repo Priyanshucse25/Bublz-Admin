@@ -1,7 +1,6 @@
 <template>
   <div class="min-h-screen bg-gray-50 p-4 sm:p-0 lg:p-0">
     <div class="mx-auto max-w-7xl">
-      <!-- Header -->
       <div class=" sticky top-0 z-10 flex items-center justify-between rounded-t-lg border-b border-gray-200 bg-white px-6 py-4">
         <div>
           <h1 class="text-xl font-bold text-gray-800">Add Banners</h1>
@@ -15,7 +14,6 @@
         </button>
       </div>
 
-      <!-- Banners Table -->
       <div class="overflow-x-auto bg-white">
         <table class="min-w-full divide-y divide-gray-200 text-sm">
           <thead class="bg-gray-50">
@@ -164,7 +162,7 @@
 
     <Transition name="modal-fade">
         <div v-if="showViewModal" @click="showViewModal = false" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm">
-            <img :src="resolvedViewingUrl" alt="Banner Image Preview" class="max-h-[80vh] max-w-[80vw] rounded-lg shadow-xl" />
+            <img :src="resolvedViewingUrl" alt="Banner Image Preview" class="aspect-video w-auto h-auto max-w-[80vw] max-h-[80vh] object-cover rounded-lg shadow-xl" />
         </div>
     </Transition>
   </div>

@@ -29,7 +29,7 @@ axios.interceptors.response.use(
       console.warn('401 Unauthorized – clearing token and redirecting');
       localStorage.removeItem('access_token');
       // Optional: redirect to login if needed
-      // window.location.href = '/login';
+      window.location.href = '/login';
     }
     return Promise.reject(error);
   }

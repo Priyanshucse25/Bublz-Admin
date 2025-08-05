@@ -81,7 +81,7 @@
             </button>
           </div>
           <form @submit.prevent="handleSubmit" class="space-y-4">
-             <p v-if="postError || updateError" class="text-sm text-red-600">{{ postError || updateError }}</p>
+              <p v-if="postError || updateError" class="text-sm text-red-600">{{ postError || updateError }}</p>
             <div>
               <label class="block text-sm font-medium text-gray-700">Category Image</label>
               <input type="file" @change="handleImageUpload" accept="image/*" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:rounded-full file:border-0 file:bg-blue-50 file:py-2 file:px-4 file:text-sm file:font-semibold file:text-blue-700 hover:file:bg-blue-100" />
@@ -119,7 +119,7 @@
 
     <Transition name="modal-fade">
         <div v-if="showViewModal" @click="showViewModal = false" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm">
-            <img :src="buildUrl(viewingImage)" alt="Category Image" class="max-h-[80vh] max-w-[80vw] rounded-lg shadow-xl">
+            <img :src="buildUrl(viewingImage)" alt="Category Image" class="aspect-square w-auto h-auto max-h-[80vh] max-w-[80vw] object-cover rounded-lg shadow-xl">
         </div>
     </Transition>
   </div>
@@ -218,8 +218,8 @@ const handleSubmit = async () => {
   if (isEditing.value) {
     await updateCategory(currentCategory.value.id, formData);
     if (!updateError.value) {
-       await fetchCategories();
-       closeModal();
+        await fetchCategories();
+        closeModal();
     }
   } else {
     if (!currentCategory.value.imageFile) {

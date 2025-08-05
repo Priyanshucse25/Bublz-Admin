@@ -63,7 +63,7 @@
 <script setup>
 import { computed, onMounted, watch } from 'vue';
 // fixed import to match typical lowercase filename
-import { useTransactionStore } from '@/stores/TransactionStore';
+import { useTransactionStore } from '@/stores/transactionStore';
 
 const store = useTransactionStore();
 
